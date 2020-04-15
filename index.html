@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <title>Tahoe 1940 vs. Tahoe 1969</title>
+
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.15/esri/themes/light/main.css"
+    />
+    <script src="https://js.arcgis.com/4.15/"></script>
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+      }
+    </style>
+
+    <script>
+      require([
+        "esri/Map",
+        "esri/views/MapView",
+        "esri/layers/TileLayer",
+        "esri/widgets/LayerList",
+        "esri/widgets/Swipe",
+        "esri/widgets/Expand"
+      ], function(Map, MapView, TileLayer, LayerList, Swipe, Expand) {
+        const map = new Map({
+          basemap: "satellite"
+        });
+
+        const oldLayer = new TileLayer({
+          url:
+            "https://maps.trpa.org/server/rest/services/1940_Imagery/MapServer",
+          maxScale: 3000
+        });
+        map.add(oldLayer);
+
+        const newLayer = new TileLayer({
+          url:
+            "https://maps.trpa.org/server/rest/services/1969_Imagery/MapServer",
+          maxScale: 3000
+        });
+        map.add(newLayer);
+
+        const view = new MapView({
+          container: "viewDiv",
+          map: map,
+          center: [-120.01,38.93],
+          zoom: 15,
+          constraints: {
+            maxZoom: 17,
+            minZoom: 8
+          }
+        });
+
+        // create a layerlist and expand widget and add to the view
+        const layerList = new LayerList({
+          view: view
+        });
+        const llExpand = new Expand({
+          view: view,
+          content: layerList,
+          expanded: true
+        });
+        view.ui.add(llExpand, "top-right");
+
+        // create a new Swipe widget
+        const swipe = new Swipe({
+          leadingLayers: [oldLayer],
+          trailingLayers: [newLayer],
+          position: 45, // set position of widget to 35%
+          view: view
+        });
+
+        // add the widget to the view
+        view.ui.add(swipe);
+      });
+    </script>
+  </head>
+
+  <body>
+    <div id="viewDiv"></div>
+  </body>
+</html>
