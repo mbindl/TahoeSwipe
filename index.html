@@ -10,9 +10,9 @@
 
     <link
       rel="stylesheet"
-      href="https://js.arcgis.com/4.15/esri/themes/light/main.css"
+      href="https://js.arcgis.com/4.14/esri/themes/light/main.css"
     />
-    <script src="https://js.arcgis.com/4.15/"></script>
+    <script src="https://js.arcgis.com/4.14/"></script>
     <style>
       html,
       body,
@@ -22,6 +22,162 @@
         height: 100%;
         width: 100%;
       }
+        .overlay {
+            opacity:0;
+            position:fixed;
+            top:-999em;
+            left:-999em;
+            width:100%;
+            height:100%;
+            display:table;
+            background:rgba(0,0,0,0.8);
+            -webkit-animation: splash 20s forwards; 
+            animation: splash 20s forwards;
+        }
+
+        .overlay-inner {
+            display:table-cell;
+            vertical-align:middle;
+            text-align:center;
+        }
+        .title{
+            align-content: center;
+        }
+        .message {
+/*            border:1px solid #6e6e6e;*/
+            border-radius: 4px;
+            background: rgba(102,128,168, 0.6);
+            display:inline-block;
+            vertical-align:middle;
+            width:50%;
+            text-align:center;
+            font-family: "Avenir Next W00";
+            color: #f9f9f9;
+            padding:10px;
+        }
+
+        .active {
+            background: #6680a8;
+            color: #4c4c4c;
+
+        }
+
+        .overlay-wrap {
+            position:fixed;
+            top:0;
+            left:0;
+            right:0;
+            z-index:99;
+        }
+
+        .overlay-wrap .hide {
+            position:absolute;
+            top:-999em;
+            right:20px;
+/*            border:1px solid #6e6e6e;*/
+            border-radius: 2px;
+            background: rgba(102,128,168, 0.6);
+            display:inline-block;
+            text-align:middle;
+            font-family: "Avenir Next W00";
+            opacity:0;
+            color:#f9f9f9;
+            padding:2px;
+            font-size:100%;
+            z-index:2;
+            cursor:pointer;
+            -webkit-animation:15s fadein 2s forwards;
+            -moz-animation:15s fadein 2s forwards;
+            -ms-animation:15s fadein 2s forwards;
+            animation:15s fadein 2s forwards;
+        }
+
+        #hide {
+            position:absolute;
+            left:-999em;
+            top:-999em;
+        }
+
+        .overlay2{
+            position:absolute;
+            opacity:1;
+            -webkit-transition:all 2s;
+            -moz-transition:all 2s;
+            -ms-transition:all 2s;
+            transition:all 2s ;
+        }
+
+        #hide:checked ~ div,#hide:checked ~ div *, #hide:checked + label {
+            opacity:0;
+            left:-999em;
+            right:auto;
+            top:-999em;
+            pointer-events:none;
+        }
+
+        @-webkit-keyframes splash {
+            0%  {opacity: 0;top:0;left:0}
+            20% {opacity:1;top:0;left:0}
+            60% {opacity:1;top:0;left:0}
+            99% {top:0;left:0}
+            100% {opacity:0;top:-999em;left:-999em}
+        }
+
+        @-moz-keyframes splash {
+            0%  {opacity: 0;top:0;left:0}
+            20% {opacity:1;top:0;left:0}
+            60% {opacity:1;top:0;left:0}
+            99% {top:0;left:0}
+            100% {opacity:0;top:-999em;left:-999em}
+        }
+
+        @-ms-keyframes splash {
+            0% {opacity: 0;top:0;left:0}
+            20% {opacity:1;top:0;left:0}
+            60% {opacity:1;top:0;left:0}
+            99% {top:0;left:0}
+            100% {opacity:0;top:-999em;left:-999em}
+        }
+
+        @keyframes splash {
+            0%  {opacity: 0;top:0;left:0}
+            20% {opacity:1;top:0;left:0}
+            60% {opacity:1;top:0;left:0}
+            99% {top:0;left:0}
+            100% {opacity:0;top:-999em;left:-999em}
+        }
+
+        @-webkit-keyframes fadein {
+            0% {opacity: 0;top:10px;}
+            20% {opacity:1;top:10px;}
+            60%{opacity:1;top:10px}
+            99% {top:10px}
+            100%{opacity:0;top:-999em}
+        }
+
+        @-moz-keyframes fadein {
+            0% {opacity: 0;top:10px;}
+            20% {opacity:1;top:10px;}
+            60%{opacity:1;top:10px}
+            99% {top:10px}
+            100%{opacity:0;top:-999em
+        }
+
+        @-ms-keyframes fadein {
+            0% {opacity: 0;top:10px;}
+            20% {opacity:1;top:10px;}
+            60%{opacity:1;top:10px}
+            99% {top:10px}
+            100%{opacity:0;top:-999em
+        }
+
+        @keyframes fadein {
+            0% {opacity: 0;top:10px;}
+            20% {opacity:1;top:10px;}
+            60%{opacity:1;top:10px}
+            99% {top:10px}
+            100%{opacity:0;top:-999em}
+        }
     </style>
 
     <script>
@@ -80,14 +236,27 @@
           position: 45, // set position of widget to 35%
           view: view
         });
-
-        // add the widget to the view
-        view.ui.add(swipe);
+        // add swipe to view
+        view.ui.add(swipe);     
       });
     </script>
   </head>
 
   <body>
     <div id="viewDiv"></div>
+      <div class="overlay-wrap">
+		<input type="checkbox" name="hide" id="hide">
+		<label class="hide" for="hide">X</label>
+		  <div class="overlay2">
+              <div class="overlay">
+                <div class="overlay-inner">
+                  <div class="message">
+                      <p><h2>Historic Image Swipe</h2></p> 
+                      <p>Use this map to <b>SWIPE</b> between the 1940 and 1969 image layers. Toggle them off to view the most recent imagery underneath.</p>
+                  </div>
+                </div>
+            </div>
+        </div>
+    </div>
   </body>
 </html>
