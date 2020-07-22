@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="initial-scale=1, maximum-scale=1,user-scalable=no"
+    />
+    <title>LayerList widget - 4.12</title>
+
+    <link
+      rel="stylesheet"
+      href="https://js.arcgis.com/4.12/esri/themes/light/main.css"
+    />
+
+    <style>
+      html,
+      body,
+      #viewDiv {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+      }
+    </style>
+
+    <script src="https://js.arcgis.com/4.12/"></script>
+
+    <script>
+      require([
+        "esri/views/SceneView",
+        "esri/widgets/LayerList",
+        "esri/WebScene",
+        "dojo/query",
+        "esri/core/watchUtils",
+        "dojo/dom-style"
+      ], function(SceneView, LayerList, WebScene, query, watchUtils, domStyle) {
+        var scene = new WebScene({
+          portalItem: {
+            // autocasts as new PortalItem()
+            id: "adfad6ee6c6043238ea64e121bb6429a"
+          }
+        });
+
+        var view = new SceneView({
+          container: "viewDiv",
+          map: scene
+        });
+
+        view.when(function() {
+          var layerList = new LayerList({
+            view: view,
+            id: "layerlist1"
+          });
+
+          // Add widget to the top right corner of the view
+          view.ui.add(layerList, "top-right");
+          
+          //workaround for making sure layerlist is ready
+          watchUtils.when(layerList, 'operationalItems.length', function(){
+             var lis = query('li[aria-labelledby $= "__title"]', layerList.domNode);
+             lis.map(function(li){
+               if(li.innerText === "San Francisco"){
+                 domStyle.set(li, "display", "none");
+               }
+               if(li.innerText === "Growth Potential"){
+                 domStyle.set(li, "display", "none");
+               }
+             });
+          });
+          
+          var layerList2 = new LayerList({
+            view: view
+          });
+
+          // Add widget to the top right corner of the view
+          view.ui.add(layerList2, "bottom-right");
+          
+          //workaround for making sure layerlist is ready
+          watchUtils.when(layerList2, 'operationalItems.length', function(){
+             var lis = query('li[aria-labelledby $= "__title"]', layerList2.domNode);
+             lis.map(function(li){
+               if(li.innerText === "Transit lines in service"){
+                 domStyle.set(li, "display", "none");
+               }
+               if(li.innerText === "Transit lines planned"){
+                 domStyle.set(li, "display", "none");
+               }
+             });
+          });
+        });
+      });
+    </script>
+  </head>
+
+  <body class="calcite">
+    <div id="viewDiv"></div>
+  </body>
+</html>

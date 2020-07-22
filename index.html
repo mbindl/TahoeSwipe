@@ -6,7 +6,7 @@
       name="viewport"
       content="initial-scale=1,maximum-scale=1,user-scalable=no"
     />
-    <title>Tahoe 1940 vs. Tahoe 1969</title>
+    <title>Tahoe Imagery Swipe</title>
 
     <link
       rel="stylesheet"
@@ -178,6 +178,7 @@
             99% {top:10px}
             100%{opacity:0;top:-999em}
         }
+
     </style>
 
     <script>
@@ -185,28 +186,42 @@
         "esri/Map",
         "esri/views/MapView",
         "esri/layers/TileLayer",
+        "esri/widgets/Fullscreen",
         "esri/widgets/LayerList",
         "esri/widgets/Swipe",
-        "esri/widgets/Expand"
-      ], function(Map, MapView, TileLayer, LayerList, Swipe, Expand) {
+        "esri/widgets/Expand",
+        "dojo/query",
+        "esri/core/watchUtils",
+        "dojo/dom-style"
+      ], function(Map, MapView, TileLayer, Fullscreen, LayerList, Swipe, Expand,query, watchUtils, domStyle) {
         const map = new Map({
           basemap: "satellite"
         });
-
-        const oldLayer = new TileLayer({
-          url:
-            "https://maps.trpa.org/server/rest/services/1940_Imagery/MapServer",
+        const fifteenLayer = new TileLayer({
+          url: "https://maps.trpa.org/server/rest/services/2015_Imagery/MapServer",
           maxScale: 3000
         });
-        map.add(oldLayer);
-
-        const newLayer = new TileLayer({
-          url:
-            "https://maps.trpa.org/server/rest/services/1969_Imagery/MapServer",
+        map.add(fifteenLayer);
+        const fortyLayer = new TileLayer({
+          url: "https://maps.trpa.org/server/rest/services/1940_Imagery/MapServer",
           maxScale: 3000
         });
-        map.add(newLayer);
+        map.add(fortyLayer);
 
+        const sixtynineLayer = new TileLayer({
+          url: "https://maps.trpa.org/server/rest/services/1969_Imagery/MapServer",
+          maxScale: 3000
+        });
+        map.add(sixtynineLayer);
+          
+
+
+//        const eighteenLayer = new TileLayer({
+//          url: "https://maps.trpa.org/server/rest/services/2015_Imagery/MapServer",
+//          maxScale: 3000
+//        });
+//        map.add(eighteenLayer);
+       
         const view = new MapView({
           container: "viewDiv",
           map: map,
@@ -217,23 +232,65 @@
             minZoom: 8
           }
         });
+        
+        var lList = new LayerList({
+                view: view
+            });
+          
+          
+        var rList = new LayerList({
+                view: view
+            });   
+            
+        view.when(function() {
+                watchUtils.when(lList, 'operationalItems.length', function() {
+                    var elementsLeftList = document.getElementsByClassName('esri-layer-list__item esri-layer-list__item--has-children');
+                    elementsLeftList[0].style.display = "none";
+                    console.log(elementsLeftList);
+                });
+                watchUtils.when(rList, 'operationalItems.length', function() {
+                    var elementsRightList = document.getElementsByClassName('esri-layer-list__item esri-layer-list__item--has-children');
+                    elementsRightList[0].style.display = "none";
 
-        // create a layerlist and expand widget and add to the view
-        const layerList = new LayerList({
+                    console.log(elementsRightList);
+                });
+            }); 
+          
+          
+        view.ui.add(lList, "bottom-left");   
+
+        view.ui.add(rList, "bottom-right");
+       
+        var leftlayerListExpand = new Expand({
+              expandIconClass: "esri-icon-layer-list",  // see https://developers.arcgis.com/javascript/latest/guide/esri-icon-font/
+              expandTooltip: "Expand LayerList", // optional, defaults to "Expand" for English locale
+              view: view,
+              expanded: true,
+              content: lList.domNode
+            });
+          
+        view.ui.add(leftlayerListExpand, "bottom-left")
+        
+        var rightlayerListExpand = new Expand({
+              expandIconClass: "esri-icon-layer-list",  // see https://developers.arcgis.com/javascript/latest/guide/esri-icon-font/
+              expandTooltip: "Expand LayerList", // optional, defaults to "Expand" for English locale
+              view: view,
+              expanded: true,
+              content: rList.domNode
+            });
+          
+        view.ui.add(rightlayerListExpand, "bottom-right")
+          
+        var fullscreen = new Fullscreen({
           view: view
         });
-        const llExpand = new Expand({
-          view: view,
-          content: layerList,
-          expanded: true
-        });
-        view.ui.add(llExpand, "top-right");
-
+        view.ui.add(fullscreen, "top-left");
+          
         // create a new Swipe widget
         const swipe = new Swipe({
-          leadingLayers: [oldLayer],
-          trailingLayers: [newLayer],
-          position: 45, // set position of widget to 35%
+          leadingLayers: [fortyLayer, fifteenLayer],
+          trailingLayers: [sixtynineLayer],
+          position: 50, // set position of widget to 35%
           view: view
         });
         // add swipe to view
@@ -252,7 +309,7 @@
                 <div class="overlay-inner">
                   <div class="message">
                       <p><h2>Historic Image Swipe</h2></p> 
-                      <p>Use this map to <b>SWIPE</b> between the 1940 and 1969 image layers. Toggle them off to view the most recent imagery underneath.</p>
+                      <p>Use this map to <b>SWIPE</b> between the hisotric image layers. Toggle them off to view the most recent imagery underneath.</p>
                   </div>
                 </div>
             </div>
