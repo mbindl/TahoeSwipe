@@ -194,6 +194,18 @@
         "esri/core/watchUtils",
         "dojo/dom-style"
       ], function(Map, MapView, TileLayer, Fullscreen, LayerList, Swipe, Expand,query, watchUtils, domStyle) {
+          
+        function hideLayers(list, layernames){
+        var lis = query('li[aria-labelledby $= "__title"]', list.domNode);
+        lis.map(function(li){
+          layernames.map(function(label){
+            if(li.innerText === label){
+              domStyle.set(li, "display", "none");
+            }
+          });
+        });
+        }
+          
         const map = new Map({
           basemap: "satellite"
         });
@@ -214,8 +226,6 @@
         });
         map.add(sixtynineLayer);
           
-
-
 //        const eighteenLayer = new TileLayer({
 //          url: "https://maps.trpa.org/server/rest/services/2015_Imagery/MapServer",
 //          maxScale: 3000
@@ -241,31 +251,37 @@
         var rList = new LayerList({
                 view: view
             });   
-            
+          
         view.when(function() {
                 watchUtils.when(lList, 'operationalItems.length', function() {
                     var elementsLeftList = document.getElementsByClassName('esri-layer-list__item esri-layer-list__item--has-children');
+
                     elementsLeftList[0].style.display = "none";
                     console.log(elementsLeftList);
                 });
+            });
+        
+        view.when(function() {
                 watchUtils.when(rList, 'operationalItems.length', function() {
                     var elementsRightList = document.getElementsByClassName('esri-layer-list__item esri-layer-list__item--has-children');
-                    elementsRightList[0].style.display = "none";
-
+                    elementsRightList[1].style.display = "none";
                     console.log(elementsRightList);
                 });
-            }); 
-          
+            });
+//        hideLayers(rList, ['1969 Imagery','1940 Imagery']);  
+//        
+//        hideLayers(lList, ['2015 Imagery']);
           
         view.ui.add(lList, "bottom-left");   
 
         view.ui.add(rList, "bottom-right");
-       
+          
+
         var leftlayerListExpand = new Expand({
               expandIconClass: "esri-icon-layer-list",  // see https://developers.arcgis.com/javascript/latest/guide/esri-icon-font/
-              expandTooltip: "Expand LayerList", // optional, defaults to "Expand" for English locale
+              expandTooltip: "Left Swipe Layer List", 
               view: view,
-              expanded: true,
+              expanded: false,
               content: lList.domNode
             });
           
@@ -273,9 +289,9 @@
         
         var rightlayerListExpand = new Expand({
               expandIconClass: "esri-icon-layer-list",  // see https://developers.arcgis.com/javascript/latest/guide/esri-icon-font/
-              expandTooltip: "Expand LayerList", // optional, defaults to "Expand" for English locale
+              expandTooltip: "Right Swipe Layer List", 
               view: view,
-              expanded: true,
+              expanded: false,
               content: rList.domNode
             });
           
@@ -284,6 +300,7 @@
         var fullscreen = new Fullscreen({
           view: view
         });
+          
         view.ui.add(fullscreen, "top-left");
           
         // create a new Swipe widget
@@ -301,6 +318,7 @@
 
   <body>
     <div id="viewDiv"></div>
+<!--
       <div class="overlay-wrap">
 		<input type="checkbox" name="hide" id="hide">
 		<label class="hide" for="hide">X</label>
@@ -315,5 +333,6 @@
             </div>
         </div>
     </div>
+-->
   </body>
 </html>

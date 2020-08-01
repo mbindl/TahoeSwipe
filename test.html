@@ -2,99 +2,102 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta
-      name="viewport"
-      content="initial-scale=1, maximum-scale=1,user-scalable=no"
-    />
-    <title>LayerList widget - 4.12</title>
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1,user-scalable=no" />
+    <title>LayerList widgets testing - 4.15</title>
 
-    <link
-      rel="stylesheet"
-      href="https://js.arcgis.com/4.12/esri/themes/light/main.css"
-    />
+    <link rel="stylesheet" href="https://js.arcgis.com/4.15/esri/themes/light/main.css" />
 
     <style>
-      html,
-      body,
-      #viewDiv {
-        padding: 0;
-        margin: 0;
-        height: 100%;
-        width: 100%;
-        overflow: hidden;
-      }
+        html,
+        body,
+        #viewDiv {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .divClass {
+            width: 240px;
+            border: 2px solid #00467F;
+            background-color: white;
+            border-radius: 10px;
+        }
+
+        #listDiv1 {
+            position: absolute;
+            top: 30px;
+            left: 55px;
+        }
+
+        #listDiv2 {
+            position: absolute;
+            top: 30px;
+            right: 40px;
+        }
     </style>
 
-    <script src="https://js.arcgis.com/4.12/"></script>
+    <script src="https://js.arcgis.com/4.15/"></script>
 
     <script>
-      require([
-        "esri/views/SceneView",
-        "esri/widgets/LayerList",
-        "esri/WebScene",
-        "dojo/query",
-        "esri/core/watchUtils",
-        "dojo/dom-style"
-      ], function(SceneView, LayerList, WebScene, query, watchUtils, domStyle) {
-        var scene = new WebScene({
-          portalItem: {
-            // autocasts as new PortalItem()
-            id: "adfad6ee6c6043238ea64e121bb6429a"
-          }
+        require([
+        "esri/Map",
+        "esri/views/MapView",
+        "esri/layers/GroupLayer",
+        "esri/layers/MapImageLayer",
+        "esri/widgets/LayerList"
+        ], function(Map, MapView, GroupLayer, MapImageLayer, LayerList) {
+        var USALayer = new MapImageLayer({
+            url: "http://sampleserver6.arcgisonline.com/arcgis/rest/services/USA/MapServer",
+            title: "US Sample Data"
         });
 
-        var view = new SceneView({
-          container: "viewDiv",
-          map: scene
+        var censusLayer = new MapImageLayer({
+            url: "http://sampleserver6.arcgisonline.com/arcgis/rest/services/Census/MapServer",
+            title: "US Sample Census",
+            visible: false
         });
 
-        view.when(function() {
-          var layerList = new LayerList({
-            view: view,
-            id: "layerlist1"
-          });
-
-          // Add widget to the top right corner of the view
-          view.ui.add(layerList, "top-right");
-          
-          //workaround for making sure layerlist is ready
-          watchUtils.when(layerList, 'operationalItems.length', function(){
-             var lis = query('li[aria-labelledby $= "__title"]', layerList.domNode);
-             lis.map(function(li){
-               if(li.innerText === "San Francisco"){
-                 domStyle.set(li, "display", "none");
-               }
-               if(li.innerText === "Growth Potential"){
-                 domStyle.set(li, "display", "none");
-               }
-             });
-          });
-          
-          var layerList2 = new LayerList({
-            view: view
-          });
-
-          // Add widget to the top right corner of the view
-          view.ui.add(layerList2, "bottom-right");
-          
-          //workaround for making sure layerlist is ready
-          watchUtils.when(layerList2, 'operationalItems.length', function(){
-             var lis = query('li[aria-labelledby $= "__title"]', layerList2.domNode);
-             lis.map(function(li){
-               if(li.innerText === "Transit lines in service"){
-                 domStyle.set(li, "display", "none");
-               }
-               if(li.innerText === "Transit lines planned"){
-                 domStyle.set(li, "display", "none");
-               }
-             });
-          });
+        var map = new Map({
+            basemap: "dark-gray"
         });
-      });
+
+        var view = new MapView({
+            center: [-98.5795, 39.8282],
+            zoom: 5,
+            container: "viewDiv",
+            map: map
+        });
+        
+        map.addMany([USALayer, censusLayer]);
+            var layerListUSA = new LayerList({
+                view: view,
+                container: "listDiv1"
+            });
+
+            var layerListCensus = new LayerList({
+                view: view,
+                container: "listDiv2"
+            });
+            
+           view.when(function() {
+                watchUtils.when(layerListUSA, 'operationalItems.length', function() {
+                    var elementsUSA = document.getElementsByClassName('esri-layer-list__item esri-layer-list__item--has-children');
+                    elementsUSA[0].style.display = "none";
+                });
+
+                watchUtils.when(layerListCensus, 'operationalItems.length', function() {
+                    var elementsCensus = document.getElementsByClassName('esri-layer-list__item esri-layer-list__item--has-children');
+                    elementsCensus[1].style.display = "none";
+                });
+            });
+        });
     </script>
-  </head>
+</head>
 
-  <body class="calcite">
+<body>
     <div id="viewDiv"></div>
-  </body>
-</html>
+    <div id="listDiv1" class="divClass"></div>
+    <div id="listDiv2" class="divClass"></div>
+</body></html>
